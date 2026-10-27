@@ -1,26 +1,12 @@
 device_id: 1001
 name: "AHU-01"
-description: "Air Handling Unit - Main Building"
+description: "Supply-only AHU - Positive Pressure Cleanroom"
 points:
   - object_type: analogInput
     object_instance: 1
     object_name: "AHU-01/SupplyAirTemp"
     description: "Supply air temperature"
     present_value: 22.5
-    units: "degreesCelsius"
-    cov_increment: 0.5
-  - object_type: analogInput
-    object_instance: 2
-    object_name: "AHU-01/ReturnAirTemp"
-    description: "Return air temperature"
-    present_value: 24.0
-    units: "degreesCelsius"
-    cov_increment: 0.5
-  - object_type: analogInput
-    object_instance: 3
-    object_name: "AHU-01/MixedAirTemp"
-    description: "Mixed air temperature"
-    present_value: 20.0
     units: "degreesCelsius"
     cov_increment: 0.5
   - object_type: analogOutput
@@ -40,7 +26,7 @@ points:
   - object_type: analogOutput
     object_instance: 3
     object_name: "AHU-01/FanSpeed"
-    description: "Supply fan speed"
+    description: "Supply fan VFD speed command"
     present_value: 75.0
     units: "percent"
     cov_increment: 1.0
@@ -53,26 +39,45 @@ points:
     cov_increment: 0.5
   - object_type: binaryInput
     object_instance: 1
-    object_name: "AHU-01/FilterDirty"
-    description: "Filter dirty alarm"
+    object_name: "AHU-01/FanRunStatus"
+    description: "Supply fan run status feedback"
+    present_value: true
+  - object_type: binaryInput
+    object_instance: 2
+    object_name: "AHU-01/FanFault"
+    description: "Supply fan fault status"
+    present_value: false
+  - object_type: binaryInput
+    object_instance: 3
+    object_name: "AHU-01/FireAlarmStatus"
+    description: "Fire alarm interlock status"
     present_value: false
   - object_type: binaryOutput
     object_instance: 1
     object_name: "AHU-01/SupplyFanEnable"
     description: "Supply fan enable command"
     present_value: true
-  - object_type: binaryOutput
-    object_instance: 2
-    object_name: "AHU-01/ReturnFanEnable"
-    description: "Return fan enable command"
-    present_value: true
   - object_type: analogInput
-    object_instance: 4
-    object_name: "AHU-01/DuctStaticPressure"
-    description: "Duct static pressure"
-    present_value: 250.0
+    object_instance: 6
+    object_name: "AHU-01/FilterDifferentialPressure"
+    description: "Filter differential pressure"
+    present_value: 75.0
     units: "pascals"
     cov_increment: 5.0
+  - object_type: analogInput
+    object_instance: 7
+    object_name: "AHU-01/RoomDifferentialPressure"
+    description: "Cleanroom pressure relative to corridor"
+    present_value: 15.0
+    units: "pascals"
+    cov_increment: 0.5
+  - object_type: analogInput
+    object_instance: 8
+    object_name: "AHU-01/FanSpeedFeedback"
+    description: "Supply fan VFD speed feedback"
+    present_value: 75.0
+    units: "percent"
+    cov_increment: 1.0
   - object_type: analogInput
     object_instance: 5
     object_name: "AHU-01/ElectricalPower"
@@ -80,10 +85,10 @@ points:
     present_value: 4.22
     units: "kilowatts"
     cov_increment: 0.1
-  - object_type: analogValue
-    object_instance: 2
-    object_name: "AHU-01/DuctPressureSetpoint"
-    description: "Duct pressure setpoint"
-    present_value: 250.0
-    units: "pascals"
-    cov_increment: 5.0
+  - object_type: analogOutput
+    object_instance: 4
+    object_name: "AHU-01/OutdoorAirDamper"
+    description: "Modulating outdoor air damper command"
+    present_value: 100.0
+    units: "percent"
+    cov_increment: 1.0

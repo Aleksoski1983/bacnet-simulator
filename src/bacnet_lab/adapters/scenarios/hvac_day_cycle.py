@@ -33,7 +33,6 @@ class HvacDayCycleScenario(BaseScenario):
             1001: [
                 "SupplyAirTempSetpoint",
                 "SupplyAirTemp",
-                "ReturnAirTemp",
                 "CoolingValve",
                 "HeatingValve",
                 "FanSpeed",
@@ -97,7 +96,6 @@ class HvacDayCycleScenario(BaseScenario):
                 "AHU-01/SupplyAirTemp",
                 round(supply_setpoint + (outdoor_temp - supply_setpoint) * 0.05, 1),
             )
-            await self.write(1001, "AHU-01/ReturnAirTemp", round(room_temp + 1.5, 1))
             await self.write(1001, "AHU-01/CoolingValve", round(cooling_valve, 1))
             await self.write(1001, "AHU-01/HeatingValve", round(heating_valve, 1))
             await self.write(1001, "AHU-01/FanSpeed", round(fan_speed, 1))

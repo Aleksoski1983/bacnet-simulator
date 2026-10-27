@@ -48,6 +48,44 @@
             <circle class="override-pulse" cx="385" cy="79" r="5" />
         </svg>
         <span class="visual-key"><i class="key-override"></i>Temporary scenario command at priority 8</span>
+        {% elif scenario.id == 'cleanroom_ahu' %}
+        <svg viewBox="0 0 560 230" aria-hidden="true">
+            <defs>
+                <marker id="cleanroom-air-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+                    <path d="M0 0L7 3.5L0 7Z" />
+                </marker>
+            </defs>
+            <rect class="cleanroom-equipment" x="48" y="34" width="340" height="84" rx="4" />
+            <path class="cleanroom-air-path" d="M12 76H420" marker-end="url(#cleanroom-air-arrow)" />
+            <text class="cleanroom-heading" x="12" y="25">OUTDOOR AIR</text>
+            <text class="cleanroom-heading" x="440" y="25">SUPPLY AIR</text>
+            <rect class="cleanroom-component cleanroom-damper" x="61" y="51" width="40" height="51" rx="2" />
+            <path class="cleanroom-damper-blade" d="M66 94L96 59M66 59L96 94" />
+            <text x="81" y="132" text-anchor="middle">OA DAMPER</text>
+            <rect class="cleanroom-component cleanroom-filter" x="119" y="51" width="45" height="51" rx="2" />
+            <path class="cleanroom-filter-lines" d="M125 95L158 58M125 83L150 55M137 98L159 73" />
+            <text x="141" y="132" text-anchor="middle">FILTER</text>
+            <rect class="cleanroom-component cleanroom-cooling" x="180" y="51" width="45" height="51" rx="2" />
+            <path class="cleanroom-coil-lines" d="M186 57L219 96M219 57L186 96M202 53V100" />
+            <text x="202" y="132" text-anchor="middle">CHW COIL</text>
+            <rect class="cleanroom-component cleanroom-heating" x="241" y="51" width="45" height="51" rx="2" />
+            <path class="cleanroom-coil-lines" d="M247 57L280 96M280 57L247 96M263 53V100" />
+            <text x="263" y="132" text-anchor="middle">HW COIL</text>
+            <circle class="cleanroom-fan-case" cx="337" cy="76" r="24" />
+            <path class="cleanroom-fan-blades" d="M337 57V76L353 84M356 76H337L329 93M337 95V76L320 68" />
+            <text x="337" y="132" text-anchor="middle">VFD FAN</text>
+            <rect class="cleanroom-room" x="423" y="48" width="120" height="83" rx="3" />
+            <path class="cleanroom-room-air" d="M441 77H525" marker-end="url(#cleanroom-air-arrow)" />
+            <text class="cleanroom-heading" x="483" y="68" text-anchor="middle">CLEANROOM</text>
+            <text class="cleanroom-pressure-value" x="483" y="99" text-anchor="middle">+15 Pa</text>
+            <circle class="cleanroom-pressure-sensor" cx="523" cy="117" r="9" />
+            <text class="cleanroom-sensor-label" x="510" y="149" text-anchor="end">PT-01 room pressure</text>
+            <rect class="cleanroom-controller" x="196" y="158" width="152" height="31" rx="3" />
+            <text class="cleanroom-controller-label" x="272" y="178" text-anchor="middle">BMS / PRESSURE LOOP</text>
+            <path class="cleanroom-feedback" d="M523 126V198H348V174M198 174H176V144H337V102" />
+            <text class="cleanroom-interlock" x="12" y="219">FIRE / FAN FAULT: FAN OFF, OA DAMPER CLOSED</text>
+        </svg>
+        <span class="visual-key"><i class="key-temp"></i>Supply airflow <i class="key-alarm"></i>Pressure feedback and safety interlock</span>
         {% else %}
         <div class="visual-fallback" aria-hidden="true">Scenario ready</div>
         {% endif %}

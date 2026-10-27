@@ -8,6 +8,7 @@ from bacnet_lab.adapters.bacnet.device_factory import load_all_devices
 from bacnet_lab.adapters.http.app import create_app
 from bacnet_lab.adapters.persistence.sqlite_repos import SqliteDeviceRepository
 from bacnet_lab.adapters.scenarios.alarm import AlarmScenario
+from bacnet_lab.adapters.scenarios.cleanroom_ahu import CleanroomAhuScenario
 from bacnet_lab.adapters.scenarios.device_offline import DeviceOfflineScenario
 from bacnet_lab.adapters.scenarios.hvac_day_cycle import HvacDayCycleScenario
 from bacnet_lab.adapters.scenarios.manual_override import ManualOverrideScenario
@@ -23,6 +24,7 @@ async def lab():
             AlarmScenario,
             ManualOverrideScenario,
             HvacDayCycleScenario,
+            CleanroomAhuScenario,
             DeviceOfflineScenario,
         ):
             c.scenario_service._runner.register(cls(c.device_service, c.event_publisher))
@@ -108,6 +110,33 @@ async def test_hvac_cycle_updates_estimated_fan_power(lab):
         )
     )
     await client.post("/api/scenarios/hvac_day_cycle/stop")
+
+
+@pytest.mark.asyncio
+async def test_cleanroom_scenario_controls_pressure_and_supply_fan(lab):
+    client, c = lab
+    c.event_publisher._handlers.clear()
+    c.device_service._repo.update_point_value = AsyncMock()
+    await c.device_service.write_point_by_name(1001, "AHU-01/OutdoorAirDamper", 0)
+    response = await client.post(
+        "/api/scenarios/cleanroom_ahu/start",
+        json={"params": {"room_pressure_setpoint_pa": 20, "interval": 0.1}},
+    )
+    assert response.status_code == 200
+    await until(
+        lambda: (
+            c.device_service.point(1001, "AHU-01/ElectricalPower").present_value
+            == pytest.approx(5.62)
+        )
+    )
+    assert c.device_service.point(1001, "AHU-01/RoomDifferentialPressure").present_value > 15
+    assert c.device_service.point(1001, "AHU-01/FanRunStatus").present_value is True
+    assert c.device_service.point(1001, "AHU-01/OutdoorAirDamper").present_value == 100
+    await c.device_service.write_point_by_name(1001, "AHU-01/FireAlarmStatus", True)
+    await until(lambda: not c.device_service.point(1001, "AHU-01/FanRunStatus").present_value)
+    assert c.device_service.point(1001, "AHU-01/FanSpeed").present_value == 0
+    assert c.device_service.point(1001, "AHU-01/OutdoorAirDamper").present_value == 0
+    await client.post("/api/scenarios/cleanroom_ahu/stop")
 
 
 @pytest.mark.asyncio
@@ -282,7 +311,7 @@ async def test_ui_refresh_keeps_controls_and_all_pages_render(lab):
     client, _ = lab
     page = (await client.get("/ui/devices/1001")).text
     partial = (await client.get("/ui/partials/points/1001")).text
-    assert page.count('data-method="PUT"') == partial.count('data-method="PUT"') == 7
+    assert page.count('data-method="PUT"') == partial.count('data-method="PUT"') == 6
     assert 'data-kind="boolean"' in partial
     for path in ["/ui/scenarios", "/ui/events", "/ui/endpoints", "/ui/partials/endpoints"]:
         assert (await client.get(path)).status_code == 200

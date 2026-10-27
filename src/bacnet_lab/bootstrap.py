@@ -14,6 +14,7 @@ from bacnet_lab.adapters.persistence.sqlite_repos import (
     SqliteEventLogRepository,
 )
 from bacnet_lab.adapters.scenarios.alarm import AlarmScenario
+from bacnet_lab.adapters.scenarios.cleanroom_ahu import CleanroomAhuScenario
 from bacnet_lab.adapters.scenarios.device_offline import DeviceOfflineScenario
 from bacnet_lab.adapters.scenarios.hvac_day_cycle import HvacDayCycleScenario
 from bacnet_lab.adapters.scenarios.manual_override import ManualOverrideScenario
@@ -100,6 +101,7 @@ async def create_container(settings: AppSettings) -> Container:
     # Scenarios
     scenario_registry = ScenarioRegistry()
     scenario_registry.register(HvacDayCycleScenario(device_service, event_publisher))
+    scenario_registry.register(CleanroomAhuScenario(device_service, event_publisher))
     scenario_registry.register(AlarmScenario(device_service, event_publisher))
     scenario_registry.register(DeviceOfflineScenario(device_service, event_publisher))
     scenario_registry.register(ManualOverrideScenario(device_service, event_publisher))

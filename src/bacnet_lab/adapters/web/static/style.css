@@ -45,6 +45,7 @@ article header {
 .scenario-alarm_cycle { --scenario-accent: #c24b38; }
 .scenario-device_offline { --scenario-accent: #416ca3; }
 .scenario-manual_override { --scenario-accent: #96721e; }
+.scenario-cleanroom_ahu { --scenario-accent: #147d78; }
 
 .scenario-visual {
     margin: 1rem 0;
@@ -126,6 +127,39 @@ article header {
 .priority-arrow { fill: none; stroke: #96721e; stroke-width: 2; }
 .override-pulse { fill: #fff; stroke: #96721e; stroke-width: 3; }
 .visual-fallback { padding: 2.5rem 1rem; text-align: center; color: #59665f; }
+
+.cleanroom-equipment { fill: #e8eeea; stroke: #809188; stroke-width: 1.5; }
+.cleanroom-air-path { fill: none; stroke: #21865b; stroke-width: 3; stroke-dasharray: 9 7; }
+.cleanroom-air-path marker path, .cleanroom-room-air marker path { fill: #21865b; }
+.cleanroom-heading { fill: #34443b !important; font-size: 10px !important; font-weight: 700 !important; }
+.cleanroom-component { stroke: #66776e; stroke-width: 1.5; }
+.cleanroom-damper { fill: #fff; }
+.cleanroom-damper-blade { stroke: #147d78; stroke-width: 2; }
+.cleanroom-filter { fill: #f5f7f5; }
+.cleanroom-filter-lines { fill: none; stroke: #75867d; stroke-width: 1.5; }
+.cleanroom-cooling { fill: #dcecf4; }
+.cleanroom-heating { fill: #f5e1dc; }
+.cleanroom-coil-lines { fill: none; stroke: #537e9a; stroke-width: 1.5; }
+.cleanroom-heating .cleanroom-coil-lines { stroke: #bd6048; }
+.cleanroom-fan-case { fill: #fff; stroke: #66776e; stroke-width: 2; }
+.cleanroom-fan-blades { fill: none; stroke: #416ca3; stroke-linecap: round; stroke-width: 3; }
+.cleanroom-room { fill: #edf3f7; stroke: #698292; stroke-width: 1.5; }
+.cleanroom-room-air { fill: none; stroke: #416ca3; stroke-width: 2.5; }
+.cleanroom-pressure-value { fill: #21865b !important; font-size: 16px !important; font-weight: 700 !important; }
+.cleanroom-pressure-sensor { fill: #fff; stroke: #96721e; stroke-width: 2; }
+.cleanroom-sensor-label { font-size: 9px !important; }
+.cleanroom-controller { fill: #fff; stroke: #416ca3; stroke-width: 1.5; }
+.cleanroom-controller-label { fill: #34443b !important; font-size: 10px !important; font-weight: 700 !important; }
+.cleanroom-feedback { fill: none; stroke: #416ca3; stroke-dasharray: 4 4; stroke-width: 1.5; }
+.cleanroom-interlock { fill: #b42318 !important; font-size: 9px !important; font-weight: 700 !important; }
+
+.scenario-cleanroom_ahu.is-running .cleanroom-air-path {
+    animation: scenario-flow 2.5s linear infinite;
+}
+
+.scenario-cleanroom_ahu.is-running .cleanroom-pressure-sensor {
+    animation: scenario-pulse 1.6s ease-in-out infinite;
+}
 
 .scenario-card.is-running .visual-line-main {
     stroke-dasharray: 900;

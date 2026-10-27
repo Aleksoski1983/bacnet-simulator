@@ -40,6 +40,7 @@ In PowerShell, use `curl.exe` in place of `curl` if `curl` resolves to the Power
 | Scenario ID | Use it to… | What happens |
 |---|---|---|
 | `hvac_day_cycle` | Exercise normal changing HVAC values across several devices | Repeats an illustrative, compressed 24-hour day/night profile. Outdoor temperature, setpoints, valves, fan speed, occupancy, damper position, and CO2 change on each update. |
+| `cleanroom_ahu` | Demonstrate the supply-only cleanroom sequence in the AHU diagram | Modulates supply fan speed around the room pressure setpoint, controls supply temperature with coil valves, opens the outdoor-air damper, estimates fan power, and shuts down on fan fault or fire alarm. |
 | `alarm_cycle` | Test application alarm handling and event/webhook delivery | Forces a selected point to the high temperature, raises an alarm, restores the prior point state, clears the alarm, then repeats after a clear interval. |
 | `device_offline` | Test client behavior when a device stops responding | Repeatedly takes one device offline and brings it online. Other devices remain available. |
 | `manual_override` | Test a temporary command or priority handling | Holds a selected point at a value, then restores its prior state after the hold duration. This runs once. |
@@ -53,11 +54,14 @@ Durations and update intervals are seconds and must be between **0.01 and 86400*
 | Scenario ID | Defaults | Behaviour |
 |---|---|---|
 | `hvac_day_cycle` | `cycle_seconds=120`, `interval=3`, `fan_rated_power_kw=10.0` | Repeating compressed 24h cycle; estimates AHU supply fan power from fan speed |
+| `cleanroom_ahu` | `interval=1`, `room_pressure_setpoint_pa=15.0`, `supply_air_setpoint_c=18.0`, `outdoor_air_damper_pct=100.0`, `fan_rated_power_kw=10.0` | Supply-only cleanroom control sequence |
 | `alarm_cycle` | `device_id=1001`, `point_name=AHU-01/SupplyAirTemp`, `high_temp=35.0`, `alarm_duration=15`, `clear_duration=20` | Hold temperature → raise application alarm → clear and restore → repeat |
 | `device_offline` | `device_id=2001`, `offline_duration=15`, `online_duration=30` | Close/reopen target UDP sockets; other devices continue |
 | `manual_override` | `device_id=1001`, `point_name=AHU-01/CoolingValve`, `override_value=100.0`, `hold_duration=30` | One hold, then restore |
 
 The HVAC cycle calculates `AHU-01/ElectricalPower` in kW with `fan_rated_power_kw × (fan_speed / 100)^3`. The default 10 kW fan rating is illustrative and can be changed when starting the scenario. This estimates supply-fan power only; it does not calculate total AHU electrical demand or accumulated energy.
+
+`cleanroom_ahu` models the diagram's typical +15 Pa room pressure setpoint, supply-air temperature control, 100% outdoor-air damper command, and fan/fire interlocks. The room pressure response and SAT response are simplified simulation dynamics, not a tuned PID loop or a physical air-handling model. Filter differential pressure is exposed for BMS alarming; the scenario does not simulate filter loading. Return-air and mixed-air points are intentionally absent from the supply-only AHU profile.
 
 For example, shorten the alarm cycle for a quick test:
 
