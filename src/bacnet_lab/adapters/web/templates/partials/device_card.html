@@ -5,7 +5,7 @@
         <span class="status-badge status-{{ device.status.value }}">{{ device.status.value }}</span>
     </header>
     <p>{{ device.description }}</p>
-    <small>ID: {{ device.device_id }} — {{ device.points|length }} points</small>
+    <small>ID: {{ device.device_id }} — UDP port {{ device.address.port if device.address else "Not bound" }} — {{ device.points|length }} points</small>
     <footer>
         <a href="/ui/devices/{{ device.device_id }}" role="button" class="outline secondary">Details</a>
     </footer>

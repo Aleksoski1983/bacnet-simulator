@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Scenarios — BACnet Lab{% endblock %}
 {% block content %}
+<div class="scenarios-view">
 <h1>Scenarios</h1>
 <div hx-get="/ui/partials/scenarios" hx-trigger="every 3s" hx-swap="innerHTML">
     {% include "partials/scenario_card.html" %}
+</div>
 </div>
 {% endblock %}

@@ -1,12 +1,12 @@
 # Devices
 
-BACnet Lab simulates 7 HVAC devices with 44 BACnet points. Default devices use separate UDP ports and directed discovery.
+BACnet Lab simulates 7 HVAC devices with 45 BACnet points. Default devices use separate UDP ports and directed discovery.
 
 ## Device Overview
 
 | Device | ID | UDP Port | Points | Location |
 |--------|----|----------|--------|----------|
-| AHU-01 | 1001 | 47808 | 12 | Main Building |
+| AHU-01 | 1001 | 47808 | 13 | Main Building |
 | FCU-01 | 2001 | 47810 | 7 | Zone 1 (Office North) |
 | FCU-02 | 2002 | 47811 | 7 | Zone 2 (Office South) |
 | TSTAT-01 | 3001 | 47813 | 6 | Lobby |
@@ -22,6 +22,7 @@ BACnet Lab simulates 7 HVAC devices with 44 BACnet points. Default devices use s
 | AHU-01/ReturnAirTemp | analogInput | Return air temperature | 24.0 | degreesCelsius |
 | AHU-01/MixedAirTemp | analogInput | Mixed air temperature | 20.0 | degreesCelsius |
 | AHU-01/DuctStaticPressure | analogInput | Duct static pressure | 250.0 | pascals |
+| AHU-01/ElectricalPower | analogInput | Estimated supply fan electrical power (fan-only) | 4.22 | kilowatts |
 | AHU-01/CoolingValve | analogOutput | Cooling coil valve position | 45.0 | percent |
 | AHU-01/HeatingValve | analogOutput | Heating coil valve position | 0.0 | percent |
 | AHU-01/FanSpeed | analogOutput | Supply fan speed | 75.0 | percent |
@@ -30,6 +31,8 @@ BACnet Lab simulates 7 HVAC devices with 44 BACnet points. Default devices use s
 | AHU-01/FilterDirty | binaryInput | Filter dirty alarm | false | — |
 | AHU-01/SupplyFanEnable | binaryOutput | Supply fan enable command | true | — |
 | AHU-01/ReturnFanEnable | binaryOutput | Return fan enable command | true | — |
+
+`ElectricalPower` is an estimate updated by the HVAC Day/Night scenario using the fan affinity approximation `rated_power × (fan_speed / 100)^3`. The scenario assumes a 10 kW rated supply fan by default; change `fan_rated_power_kw` when starting the scenario to use another rating. This is fan-only power, not total AHU or plant energy, and is not a measured value.
 
 ## FCU-01 — Fan Coil Unit Zone 1
 

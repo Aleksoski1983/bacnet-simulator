@@ -81,6 +81,7 @@ async def test_override_preserves_prior_command_and_excludes_simulation(lab):
         {"interval": -1},
         {"interval": "abc"},
         {"interval": 10**400},
+        {"fan_rated_power_kw": 0},
         {"typo": 10},
     ],
 )
@@ -89,6 +90,24 @@ async def test_invalid_scenario_parameters_rejected_before_start(lab, params):
     response = await client.post("/api/scenarios/hvac_day_cycle/start", json={"params": params})
     assert response.status_code == 422
     assert c.scenario_service.get_scenario("hvac_day_cycle").status == ScenarioStatus.IDLE
+
+
+@pytest.mark.asyncio
+async def test_hvac_cycle_updates_estimated_fan_power(lab):
+    client, c = lab
+    response = await client.post(
+        "/api/scenarios/hvac_day_cycle/start",
+        json={"params": {"fan_rated_power_kw": 10.0, "interval": 60}},
+    )
+    assert response.status_code == 200
+    await until(
+        lambda: (
+            c.device_service.point(1001, "AHU-01/ElectricalPower").present_value
+            == pytest.approx(0.27)
+            and c.device_service.point(5002, "CO2-01/CO2Level").present_value == 400
+        )
+    )
+    await client.post("/api/scenarios/hvac_day_cycle/stop")
 
 
 @pytest.mark.asyncio

@@ -4,13 +4,16 @@ import asyncio
 import math
 
 from bacnet_lab.adapters.scenarios.base import BaseScenario
+from bacnet_lab.domain.errors import ValidationError
 from bacnet_lab.domain.models.scenario import ScenarioParameter
 
 
 class HvacDayCycleScenario(BaseScenario):
     id = "hvac_day_cycle"
     name = "HVAC Day/Night Cycle"
-    description = "Simulates a compressed 24h HVAC cycle: temperature, valve positions, and fan speeds vary over time."
+    description = (
+        "Simulates a compressed 24h HVAC cycle, including estimated supply fan electrical power."
+    )
 
     def default_parameters(self) -> list[ScenarioParameter]:
         return [
@@ -18,6 +21,11 @@ class HvacDayCycleScenario(BaseScenario):
                 name="cycle_seconds", description="Full cycle duration in seconds", default=120
             ),
             ScenarioParameter(name="interval", description="Update interval in seconds", default=3),
+            ScenarioParameter(
+                name="fan_rated_power_kw",
+                description="Assumed rated supply fan power in kW",
+                default=10.0,
+            ),
         ]
 
     def validate(self) -> None:
@@ -29,6 +37,7 @@ class HvacDayCycleScenario(BaseScenario):
                 "CoolingValve",
                 "HeatingValve",
                 "FanSpeed",
+                "ElectricalPower",
             ],
             2001: ["RoomTemp", "OccupancySensor"],
             2002: ["RoomTemp", "OccupancySensor"],
@@ -49,6 +58,8 @@ class HvacDayCycleScenario(BaseScenario):
         for device_id, points in required.items():
             for point in points:
                 self.require_point(device_id, f"{names[device_id]}/{point}")
+        if self.parameter("fan_rated_power_kw") <= 0:
+            raise ValidationError("fan_rated_power_kw must be greater than zero")
 
     async def run(self) -> None:
         cycle_s = float(self.parameter("cycle_seconds"))
@@ -67,6 +78,7 @@ class HvacDayCycleScenario(BaseScenario):
             occupied = 7 <= hour <= 19
             supply_setpoint = 22.0 if occupied else 18.0
             fan_speed = 75.0 if occupied else 30.0
+            fan_power_kw = round(self.parameter("fan_rated_power_kw") * (fan_speed / 100) ** 3, 2)
             cooling_valve = max(0, min(100, (outdoor_temp - 22) * 5)) if occupied else 0.0
             heating_valve = (
                 max(0, min(100, (18 - outdoor_temp) * 5))
@@ -89,6 +101,7 @@ class HvacDayCycleScenario(BaseScenario):
             await self.write(1001, "AHU-01/CoolingValve", round(cooling_valve, 1))
             await self.write(1001, "AHU-01/HeatingValve", round(heating_valve, 1))
             await self.write(1001, "AHU-01/FanSpeed", round(fan_speed, 1))
+            await self.write(1001, "AHU-01/ElectricalPower", fan_power_kw)
 
             # FCUs follow
             await self.write(2001, "FCU-01/RoomTemp", round(room_temp - 0.5, 1))

@@ -6,7 +6,9 @@
     <p>{{ device.description }} — Device ID: {{ device.device_id }}
         <span class="status-badge status-{{ device.status.value }}">{{ device.status.value }}</span>
     </p>
-    <p>{{ device.address }}{% if device.error %} — {{ device.error }}{% endif %}</p>
+    <p>BACnet address: <code>{{ device.address if device.address else "Not bound" }}</code>
+        {% if device.address %}(UDP port <code>{{ device.address.port }}</code>){% endif %}
+        {% if device.error %} — {{ device.error }}{% endif %}</p>
 </hgroup>
 
 <h2>Points</h2>

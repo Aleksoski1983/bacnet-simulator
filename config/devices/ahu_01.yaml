@@ -73,6 +73,13 @@ points:
     present_value: 250.0
     units: "pascals"
     cov_increment: 5.0
+  - object_type: analogInput
+    object_instance: 5
+    object_name: "AHU-01/ElectricalPower"
+    description: "Estimated supply fan electrical power; excludes other AHU loads"
+    present_value: 4.22
+    units: "kilowatts"
+    cov_increment: 0.1
   - object_type: analogValue
     object_instance: 2
     object_name: "AHU-01/DuctPressureSetpoint"

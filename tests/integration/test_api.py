@@ -205,7 +205,12 @@ async def test_get_device(client):
     assert resp.status_code == 200
     data = resp.json()
     assert data["name"] == "AHU-01"
-    assert len(data["points"]) == 12
+    assert len(data["points"]) == 13
+    electrical_power = next(
+        point for point in data["points"] if point["object_name"] == "AHU-01/ElectricalPower"
+    )
+    assert electrical_power["object_type"] == "analogInput"
+    assert electrical_power["units"] == "kilowatts"
 
 
 @pytest.mark.asyncio

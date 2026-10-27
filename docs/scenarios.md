@@ -1,24 +1,82 @@
 # Scenarios
 
-Start/stop from the dashboard or API. Parameters are validated before start, fixed during a run and reset to defaults on restart. Stop waits for cleanup; transitions emit events.
+Scenarios are ready-made simulations that change device values or availability over time. Use them to exercise a BACnet client, dashboard, alarm workflow, or integration without manually changing every point.
+
+## Quick start
+
+Start the simulator, then open the [dashboard](http://localhost:8080/ui) and choose **Scenarios**. Each scenario shows its current status and parameters. Edit the values and choose **Start**; choose **Stop** on a running scenario. The page refreshes scenario state automatically.
+
+You can do the same through the REST API. First list available scenarios and their parameters:
+
+```bash
+curl http://localhost:8080/api/scenarios
+```
+
+Start the compressed day/night cycle with a one-minute cycle and updates every two seconds:
 
 ```bash
 curl -X POST http://localhost:8080/api/scenarios/hvac_day_cycle/start \
   -H 'Content-Type: application/json' \
   -d '{"params":{"cycle_seconds":60,"interval":2}}'
+```
+
+The start response includes the scenario status and parameter values. Check status and any runtime error with `GET /api/scenarios`; stop it when you are done:
+
+```bash
+curl http://localhost:8080/api/scenarios
 curl -X POST http://localhost:8080/api/scenarios/hvac_day_cycle/stop
 ```
 
+For scenarios with no custom settings, omit the request body:
+
+```bash
+curl -X POST http://localhost:8080/api/scenarios/hvac_day_cycle/start
+```
+
+In PowerShell, use `curl.exe` in place of `curl` if `curl` resolves to the PowerShell web-request alias. If Basic authentication is configured, include the credentials with your HTTP client's authentication option.
+
+## Choose a scenario
+
+| Scenario ID | Use it to… | What happens |
+|---|---|---|
+| `hvac_day_cycle` | Exercise normal changing HVAC values across several devices | Repeats an illustrative, compressed 24-hour day/night profile. Outdoor temperature, setpoints, valves, fan speed, occupancy, damper position, and CO2 change on each update. |
+| `alarm_cycle` | Test application alarm handling and event/webhook delivery | Forces a selected point to the high temperature, raises an alarm, restores the prior point state, clears the alarm, then repeats after a clear interval. |
+| `device_offline` | Test client behavior when a device stops responding | Repeatedly takes one device offline and brings it online. Other devices remain available. |
+| `manual_override` | Test a temporary command or priority handling | Holds a selected point at a value, then restores its prior state after the hold duration. This runs once. |
+
+The HVAC profile is illustrative, not a thermodynamic model. It expects the bundled device IDs and point names; a custom inventory missing one of those points cannot run it. The other scenarios accept a target device/point where applicable, but the device and point must exist and support the requested value.
+
 ## Parameters
 
-All durations/intervals are seconds, from **0.01 to 86400**.
+Durations and update intervals are seconds and must be between **0.01 and 86400**. Omit a parameter to use its default. Unknown parameters, invalid types, unsupported values, or unavailable targets are rejected before the scenario starts.
 
 | Scenario ID | Defaults | Behaviour |
 |---|---|---|
-| `hvac_day_cycle` | `cycle_seconds=120`, `interval=3` | Repeating compressed 24h cycle |
+| `hvac_day_cycle` | `cycle_seconds=120`, `interval=3`, `fan_rated_power_kw=10.0` | Repeating compressed 24h cycle; estimates AHU supply fan power from fan speed |
 | `alarm_cycle` | `device_id=1001`, `point_name=AHU-01/SupplyAirTemp`, `high_temp=35.0`, `alarm_duration=15`, `clear_duration=20` | Hold temperature → raise application alarm → clear and restore → repeat |
 | `device_offline` | `device_id=2001`, `offline_duration=15`, `online_duration=30` | Close/reopen target UDP sockets; other devices continue |
 | `manual_override` | `device_id=1001`, `point_name=AHU-01/CoolingValve`, `override_value=100.0`, `hold_duration=30` | One hold, then restore |
+
+The HVAC cycle calculates `AHU-01/ElectricalPower` in kW with `fan_rated_power_kw × (fan_speed / 100)^3`. The default 10 kW fan rating is illustrative and can be changed when starting the scenario. This estimates supply-fan power only; it does not calculate total AHU electrical demand or accumulated energy.
+
+For example, shorten the alarm cycle for a quick test:
+
+```bash
+curl -X POST http://localhost:8080/api/scenarios/alarm_cycle/start \
+  -H 'Content-Type: application/json' \
+  -d '{"params":{"high_temp":38,"alarm_duration":5,"clear_duration":5}}'
+```
+
+Then inspect active alarms and recent events at `GET /api/alarms?active_only=true` and `GET /api/events`. The alarm is an application-level event; it does not send BACnet intrinsic notifications.
+
+## Lifecycle and interactions
+
+- Scenario parameters are validated before start and stay fixed while running. The next start uses defaults for omitted parameters. Starting an already-running scenario does not start a second copy.
+- `hvac_day_cycle`, `alarm_cycle`, and `device_offline` repeat until stopped. `manual_override` completes after its hold duration and changes to `stopped`.
+- Stop waits for cancellation and cleanup. It restores an override, clears an active application alarm, or brings an offline target back online, as applicable.
+- Scenarios publish lifecycle events. Runtime failures set status to `error`, populate the scenario's `error` field, and emit `scenario_failed`.
+- Multiple scenarios can run together when their point/device ownership does not conflict. Application scenarios yield to each other's owned points; a higher-priority BACnet command can still determine the effective value.
+- A device taken offline retains its values and priorities when it reconnects. BACnet COV subscribers may need to resubscribe.
 
 ## Behaviour and limits
 
@@ -33,7 +91,5 @@ All durations/intervals are seconds, from **0.01 to 86400**.
 | Restoration | Previous priority-8 slot or simulated input source; later writes at that slot are preserved, even at the same value |
 | Offline cleanup | Stop restores an offline target; values/priorities survive reconnect, COV clients must resubscribe |
 | Conflicts | Stop overrides before taking a device offline; runtime conflicts/failures expose `error` and emit `scenario_failed` |
-
-Multiple scenarios may run concurrently within these ownership rules.
 
 **Migration:** `normal_temp` and `original_value` were removed; restoration uses captured state. Binary/multistate overrides use their JSON types through the API; the dashboard override field is numeric (analog).

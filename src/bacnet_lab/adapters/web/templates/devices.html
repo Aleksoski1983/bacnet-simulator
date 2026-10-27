@@ -7,6 +7,7 @@
         <tr>
             <th>ID</th>
             <th>Name</th>
+            <th>BACnet UDP Port</th>
             <th>Description</th>
             <th>Status</th>
             <th>Points</th>
@@ -18,6 +19,7 @@
         <tr>
             <td>{{ device.device_id }}</td>
             <td><strong>{{ device.name }}</strong></td>
+            <td><code>{{ device.address.port if device.address else "Not bound" }}</code></td>
             <td>{{ device.description }}</td>
             <td><span class="status-badge status-{{ device.status.value }}">{{ device.status.value }}</span></td>
             <td>{{ device.points|length }}</td>

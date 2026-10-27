@@ -29,6 +29,180 @@ article header {
     align-items: center;
 }
 
+.scenario-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 410px), 1fr));
+    gap: 1rem;
+}
+
+.scenario-card {
+    min-width: 0;
+    margin: 0;
+    border-top: 3px solid var(--scenario-accent, #147d78);
+}
+
+.scenario-hvac_day_cycle { --scenario-accent: #147d78; }
+.scenario-alarm_cycle { --scenario-accent: #c24b38; }
+.scenario-device_offline { --scenario-accent: #416ca3; }
+.scenario-manual_override { --scenario-accent: #96721e; }
+
+.scenario-visual {
+    margin: 1rem 0;
+    padding: 0.75rem 0.75rem 0.5rem;
+    overflow: hidden;
+    background: #f3f6f3;
+    border: 1px solid #dce4df;
+    border-radius: 4px;
+}
+
+.scenario-visual svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.scenario-visual text {
+    fill: #59665f;
+    font: 11px sans-serif;
+}
+
+.visual-grid {
+    fill: none;
+    stroke: #dce4df;
+    stroke-width: 1;
+}
+
+.visual-line {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 3;
+}
+
+.visual-line-main { stroke: #147d78; }
+.visual-line-secondary { stroke: #d08a31; stroke-width: 2; }
+.visual-occupancy { stroke: #d08a31; stroke-dasharray: 4 5; stroke-width: 1.5; }
+.visual-dot { fill: #147d78; stroke: #fff; stroke-width: 2; }
+.visual-alarm-threshold { stroke: #c24b38; stroke-dasharray: 5 5; stroke-width: 2; }
+.visual-alarm-marker { stroke: #c24b38; stroke-dasharray: 3 4; stroke-width: 1.5; }
+.visual-alarm-dot { fill: #c24b38; stroke: #fff; stroke-width: 2; }
+
+.visual-key {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    color: #536159;
+    font-size: 0.75rem;
+}
+
+.visual-key i {
+    display: inline-block;
+    width: 0.65rem;
+    height: 0.65rem;
+    margin-left: 0.35rem;
+    border-radius: 50%;
+}
+
+.visual-key i:first-child { margin-left: 0; }
+.key-temp { background: #147d78; }
+.key-load { background: #d08a31; }
+.key-alarm { background: #c24b38; }
+.key-online { background: #21865b; }
+.key-offline { background: #68746d; }
+.key-override { background: #96721e; }
+
+.device-node { fill: #fff; stroke: #82938a; stroke-width: 2; }
+.device-label { fill: #34443b !important; font-weight: 600 !important; }
+.device-state { fill: #416ca3 !important; font-size: 9px !important; font-weight: 700 !important; }
+.device-link { stroke: #21865b; stroke-dasharray: 7 6; stroke-width: 3; }
+.device-packet { fill: #21865b; }
+.device-packet-failed { display: none; stroke: #c24b38; stroke-linecap: round; stroke-width: 3; }
+
+.priority-label { fill: #34443b !important; font-weight: 600 !important; }
+.priority-slot { fill: #dfe6e1; }
+.priority-slot-active { fill: #d5a93f; }
+.priority-arrow { fill: none; stroke: #96721e; stroke-width: 2; }
+.override-pulse { fill: #fff; stroke: #96721e; stroke-width: 3; }
+.visual-fallback { padding: 2.5rem 1rem; text-align: center; color: #59665f; }
+
+.scenario-card.is-running .visual-line-main {
+    stroke-dasharray: 900;
+    animation: scenario-flow 8s linear infinite;
+}
+
+.scenario-card.scenario-alarm_cycle.is-running .visual-alarm-dot,
+.scenario-card.scenario-manual_override.is-running .override-pulse {
+    animation: scenario-pulse 1.4s ease-in-out infinite;
+}
+
+.scenario-card.scenario-device_offline.is-running .device-link {
+    animation: device-signal 1.3s steps(2, end) infinite;
+}
+
+.scenario-card.scenario-device_offline.is-running .device-packet-failed {
+    display: block;
+}
+
+.scenario-card.scenario-device_offline.is-running .device-packet {
+    animation: packet-travel 2s linear infinite;
+}
+
+.scenario-card form {
+    margin-bottom: 0;
+}
+
+.scenario-card form label {
+    margin-bottom: 0.65rem;
+}
+
+.scenario-card form button {
+    margin-bottom: 0;
+}
+
+@media (max-width: 576px) {
+    body:has(.scenarios-view) > nav.container-fluid {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    body:has(.scenarios-view) > nav.container-fluid ul {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        margin: 0;
+        padding: 0;
+    }
+
+    body:has(.scenarios-view) > nav.container-fluid ul:last-child {
+        gap: 0.25rem 0.8rem;
+    }
+}
+
+@keyframes scenario-flow {
+    to { stroke-dashoffset: -900; }
+}
+
+@keyframes scenario-pulse {
+    50% { opacity: 0.35; transform: scale(0.8); }
+}
+
+@keyframes device-signal {
+    to { opacity: 0.2; }
+}
+
+@keyframes packet-travel {
+    from { transform: translateX(0); }
+    to { transform: translateX(72px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scenario-card.is-running .scenario-visual * {
+        animation: none !important;
+    }
+}
+
 .toast-container {
     position: fixed;
     top: 20px;

@@ -2,7 +2,7 @@
 
 **Open-source BACnet/IP simulator for developers testing BACnet clients, BMS integrations, SCADA connectors and HVAC automation without physical hardware.**
 
-Run **7 virtual HVAC devices and 44 BACnet points** with Python or Docker. Control the simulation through a REST API and web dashboard; test discovery, reads, writes, priorities, Change of Value (COV), device availability and signed webhooks.
+Run **7 virtual HVAC devices and 45 BACnet points** with Python or Docker. Control the simulation through a REST API and web dashboard; test discovery, reads, writes, priorities, Change of Value (COV), device availability and signed webhooks.
 
 [Quick start](#quick-start) · [Devices](#virtual-hvac-devices) · [API reference](docs/api.md) · [BACnet capabilities](docs/bacnet-profile.md)
 

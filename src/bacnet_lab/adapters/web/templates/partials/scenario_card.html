@@ -1,6 +1,57 @@
+<div class="scenario-grid">
 {% for scenario in scenarios %}
-<article>
+<article class="scenario-card scenario-{{ scenario.id }}{% if scenario.status.value == 'running' %} is-running{% endif %}">
     <header><strong>{{ scenario.name }}</strong><span class="status-badge status-{{ scenario.status.value }}">{{ scenario.status.value }}</span></header>
+    <div class="scenario-visual" role="img" aria-label="Visual summary of {{ scenario.name }}">
+        {% if scenario.id == 'hvac_day_cycle' %}
+        <svg viewBox="0 0 480 150" aria-hidden="true">
+            <path class="visual-grid" d="M38 24H460M38 58H460M38 92H460M38 126H460" />
+            <path class="visual-occupancy" d="M160 18V130M370 18V130" />
+            <path class="visual-line visual-line-main" d="M40 104C84 104 104 88 136 84S190 44 230 42 286 48 320 60 372 97 410 101 444 104 460 104" />
+            <path class="visual-line visual-line-secondary" d="M40 116C92 116 120 112 160 110S222 102 260 94 322 82 360 78 420 75 460 72" />
+            <text x="38" y="145">00:00</text><text x="154" y="145">07:00</text><text x="359" y="145">19:00</text><text x="425" y="145">24:00</text>
+            <circle class="visual-dot" cx="230" cy="42" r="5" />
+        </svg>
+        <span class="visual-key"><i class="key-temp"></i>Outdoor temperature <i class="key-load"></i>HVAC demand</span>
+        {% elif scenario.id == 'alarm_cycle' %}
+        <svg viewBox="0 0 480 150" aria-hidden="true">
+            <path class="visual-grid" d="M38 24H460M38 58H460M38 92H460M38 126H460" />
+            <path class="visual-alarm-threshold" d="M38 56H460" />
+            <path class="visual-line visual-line-main" d="M40 103H125L160 98V42H312V98L345 103H460" />
+            <path class="visual-alarm-marker" d="M160 30V126M312 30V126" />
+            <circle class="visual-alarm-dot" cx="160" cy="42" r="6" />
+            <text x="38" y="145">Normal</text><text x="166" y="145">Alarm raised</text><text x="325" y="145">Cleared</text>
+        </svg>
+        <span class="visual-key"><i class="key-temp"></i>Point value <i class="key-alarm"></i>Alarm threshold</span>
+        {% elif scenario.id == 'device_offline' %}
+        <svg viewBox="0 0 480 150" aria-hidden="true">
+            <path class="visual-grid" d="M38 30H460M38 75H460M38 120H460" />
+            <rect class="device-node" x="54" y="44" width="124" height="62" rx="4" />
+            <rect class="device-node" x="302" y="44" width="124" height="62" rx="4" />
+            <text class="device-label" x="116" y="69" text-anchor="middle">BACnet client</text>
+            <text class="device-label" x="364" y="69" text-anchor="middle">Target device</text>
+            <text class="device-state" x="364" y="89" text-anchor="middle">OFFLINE / ONLINE</text>
+            <path class="device-link" d="M178 75H302" />
+            <circle class="device-packet" cx="220" cy="75" r="6" />
+            <path class="device-packet-failed" d="M246 67L258 83M258 67L246 83" />
+            <text x="54" y="132">Availability alternates on a timer</text>
+        </svg>
+        <span class="visual-key"><i class="key-online"></i>Online <i class="key-offline"></i>Offline</span>
+        {% elif scenario.id == 'manual_override' %}
+        <svg viewBox="0 0 480 150" aria-hidden="true">
+            <path class="visual-grid" d="M38 30H460M38 75H460M38 120H460" />
+            <text class="priority-label" x="42" y="48">Priority 1</text><rect class="priority-slot" x="128" y="34" width="270" height="20" rx="3" />
+            <text class="priority-label" x="42" y="83">Priority 8</text><rect class="priority-slot priority-slot-active" x="128" y="69" width="270" height="20" rx="3" />
+            <text class="priority-label" x="42" y="118">Priority 16</text><rect class="priority-slot" x="128" y="104" width="270" height="20" rx="3" />
+            <path class="priority-arrow" d="M416 39V119M410 47L416 39L422 47" />
+            <text x="405" y="136">Higher BACnet priority wins</text>
+            <circle class="override-pulse" cx="385" cy="79" r="5" />
+        </svg>
+        <span class="visual-key"><i class="key-override"></i>Temporary scenario command at priority 8</span>
+        {% else %}
+        <div class="visual-fallback" aria-hidden="true">Scenario ready</div>
+        {% endif %}
+    </div>
     <p>{{ scenario.description }}</p>
     {% if scenario.error %}<p role="alert">{{ scenario.error }}</p>{% endif %}
     {% if scenario.status.value == 'running' %}
@@ -18,3 +69,4 @@
     {% endif %}
 </article>
 {% else %}<p>No scenarios configured.</p>{% endfor %}
+</div>
