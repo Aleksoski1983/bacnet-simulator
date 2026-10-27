@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import socket
 from ipaddress import IPv4Address
 from pathlib import Path
 
@@ -44,6 +45,22 @@ class AuthSettings(SettingsModel):
     @property
     def enabled(self) -> bool:
         return bool(self.username and self.password)
+
+
+def _detect_bacnet_ip() -> str:
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
+            probe.connect(("192.0.2.1", 9))
+            address = IPv4Address(probe.getsockname()[0])
+    except (OSError, ValueError) as exc:
+        raise ValueError(
+            "Could not detect the default IPv4 interface; set BACNET_LAB_BACNET_IP explicitly"
+        ) from exc
+    if address.is_loopback or address.is_unspecified:
+        raise ValueError(
+            "The default IPv4 route selected loopback; set BACNET_LAB_BACNET_IP explicitly"
+        )
+    return str(address)
 
 
 class AppSettings(SettingsModel):
@@ -104,4 +121,6 @@ def load_settings(config_path: str = "config/settings.yaml") -> AppSettings:
             for host in env["BACNET_LAB_WEBHOOK_ALLOWED_HOSTS"].split(",")
             if host.strip()
         ]
+    if str(data.get("bacnet", {}).get("ip", "")).strip().lower() == "auto":
+        data["bacnet"]["ip"] = _detect_bacnet_ip()
     return AppSettings.model_validate(data)

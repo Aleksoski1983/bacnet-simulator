@@ -15,9 +15,16 @@ cd bacnet-simulator
 
 **Local development** — Python 3.11–3.13 and uv 0.12.13:
 
+```Install it with Windows Package Manager if running on Windows:
+
+winget install --id astral-sh.uv -e
+
+
 ```bash
+
 uv sync --frozen --extra dev
 uv run python -m bacnet_lab
+
 ```
 
 **Docker on Linux** — Docker Compose 2.24+:

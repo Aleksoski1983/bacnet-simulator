@@ -1,5 +1,7 @@
 """Run one ASGI worker; the lifespan owns all simulation resources."""
 
+import logging
+
 import uvicorn
 
 from bacnet_lab.adapters.http.app import create_app
@@ -10,6 +12,9 @@ from bacnet_lab.infrastructure.logging import setup_logging
 def main() -> None:
     settings = load_settings()
     setup_logging(settings.log_level)
+    logging.getLogger(__name__).info(
+        "Using BACnet interface %s/%s", settings.bacnet.ip, settings.bacnet.prefix
+    )
     uvicorn.run(
         create_app(settings=settings),
         host=settings.http.host,

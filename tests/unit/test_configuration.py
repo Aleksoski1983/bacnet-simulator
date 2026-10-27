@@ -18,6 +18,38 @@ def test_dotenv_then_environment_precedence(tmp_path, monkeypatch):
     assert load_settings().http.port == 8124
 
 
+def test_auto_bacnet_ip_uses_default_route_address(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("BACNET_LAB_BACNET_IP", "auto")
+    monkeypatch.setenv("BACNET_LAB_BACNET_PREFIX", "24")
+
+    class RouteSocket:
+        destination = None
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            return False
+
+        def connect(self, destination):
+            self.destination = destination
+
+        def getsockname(self):
+            return ("192.168.1.25", 0)
+
+    route_socket = RouteSocket()
+    monkeypatch.setattr(
+        "bacnet_lab.infrastructure.config.socket.socket", lambda *_args: route_socket
+    )
+
+    settings = load_settings()
+
+    assert settings.bacnet.ip == "192.168.1.25"
+    assert settings.bacnet.prefix == 24
+    assert route_socket.destination == ("192.0.2.1", 9)
+
+
 def test_invalid_config_is_rejected(tmp_path):
     config = tmp_path / "settings.yaml"
     config.write_text("http:\n  port: 70000\n")
